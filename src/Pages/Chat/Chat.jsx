@@ -1,26 +1,43 @@
 import React from "react";
+import { useLoaderData } from "react-router-dom";
+import Massage from "../../Massage/Massage";
 import SendMassage from "./SendMassage";
+import { useQuery } from "@tanstack/react-query";
+import { useContext } from "react";
+import { AuthContext } from "../ContextProvider/AuthProvider";
+import { useState } from "react";
 
 const Chat = () => {
+  const {user} = useContext(AuthContext)
+  const friend = useLoaderData()
+  const [massage,setMassage] = useState([])
+  const {
+    data: chat = {},
+    refetch,
+    isLoading,
+  } = useQuery({
+    queryKey: ["chats", user?.email,friend?.email],
+    queryFn: async () => {
+      const res = await fetch(
+        `http://localhost:5555/chats?user1=${friend?.email}&user2=${user?.email}`
+        // {
+        //   headers: {
+        //     authorization: `bearer ${localStorage.getItem("token")}`,
+        //   },
+        // }
+      );
+      const data = await res.json();
+      return data;
+    },
+  });
+  console.log(massage)
   return (
     <div className="relative">
       <div className="px-20">
-      <div className="chat chat-end">
-        <div className="chat-image avatar">
-          <div className="w-10 rounded-full">
-            <img src="https://placeimg.com/192/192/people" alt="" />
-          </div>
-        </div>
-        <div className="chat-header">
-          Anakin
-          <time className="text-xs opacity-50">12:46</time>
-        </div>
-        <div className="chat-bubble">I hate you!</div>
-        <div className="chat-footer opacity-50">Seen at 12:46</div>
-      </div>
+     {massage.map(( m,i ) =><Massage key={i} m={m}></Massage>)}
       </div>
       <div className="fixed bottom-1 w-full">
-      <SendMassage></SendMassage>
+      <SendMassage setMassage={setMassage} refetch={refetch} chat={chat} massage={massage}></SendMassage>
       </div>
     </div>
   );
