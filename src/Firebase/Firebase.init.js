@@ -5,12 +5,7 @@ import { initializeApp } from "firebase/app";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
-  // apiKey: "AIzaSyAv1ZloxNiSBt9zkz5RPF0ofqnYMT6vb_I",
-  // authDomain: "chat-cdbb7.firebaseapp.com",
-  // projectId: "chat-cdbb7",
-  // storageBucket: "chat-cdbb7.appspot.com",
-  // messagingSenderId: "442281142069",
-  // appId: "1:442281142069:web:f23c27279dd1959c0a8e7c"
+
 
 
   apiKey:process.env.REACT_APP_apiKey,
