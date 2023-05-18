@@ -20,82 +20,80 @@ const SignUp = () => {
   } = useForm();
   const { signUpByGoogle, signUp, updateUser, removeUser } =
     useContext(AuthContext);
-    const getToken = (email) => {
-      fetch(`https://mobiledazzar.vercel.app/jwt?email=${email}`)
-        .then((res) => res.json())
-        .then((data) => {
-
-          localStorage.setItem("token", data.accessToken);
-          reset({
-            email: "",
-            password: "",
-            name:'',
-            userImg:''
-          });
-        })
-        .catch((e) => {
-          removeUser()
-            .then(() => {
-              toast.error("something is wrong .Please try again !");
-            })
-            .catch((e) => console.error(e));
+  const getToken = (email) => {
+    fetch(`https://mobiledazzar.vercel.app/jwt?email=${email}`)
+      .then((res) => res.json())
+      .then((data) => {
+        localStorage.setItem("token", data.accessToken);
+        reset({
+          email: "",
+          password: "",
+          name: "",
+          userImg: "",
         });
-    };
-    const addUser = (email, name, img) => {
-      let user = {
-        email,
-        name,
-       img,
-       friendList : []
-
-      };
-     
-      fetch("http://localhost:5555/user", {
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify(user),
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.acknowledged) {
-            getToken(email);
-            navigate("/");
-          }
-        })
-        .catch((e) => {
-          removeUser()
-            .then(() => {
-              toast.error("something is wrong .Please try again !");
-            })
-            .catch((e) => console.error(e));
-        });
+      .catch((e) => {
+        removeUser()
+          .then(() => {
+            toast.error("something is wrong .Please try again !");
+          })
+          .catch((e) => console.error(e));
+      });
+  };
+  const addUser = (email, name, img) => {
+    let user = {
+      email,
+      name,
+      img,
+      friendList: [],
     };
-    const handleSignUp = (data) => {
-      const { name, email, password, userImg } = data;
-      const image = userImg[0];
-      const formData = new FormData();
-      formData.append("image", image);
-      const url = `https://api.imgbb.com/1/upload?&key=${process.env.REACT_APP_imgBB_apiKey}`;
-      fetch(url, {
-        method: "POST",
-        body: formData,
+
+    fetch("https://google-chat-rifat7432.vercel.app/user", {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(user),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.acknowledged) {
+          getToken(email);
+          navigate("/");
+        }
       })
-        .then((res) => res.json())
-        .then((data) => {
-          if (data.success) {
-            const img = data.data.url;
-            signUp(email, password)
-              .then((Result) => {
-                console.log(Result.user)
-                addUser(email, name, img);
-                updateUser(name, img);
-              })
-              .catch((e) => toast.error(e.message));
-          }
-        });
-    };
+      .catch((e) => {
+        removeUser()
+          .then(() => {
+            toast.error("something is wrong .Please try again !");
+          })
+          .catch((e) => console.error(e));
+      });
+  };
+  const handleSignUp = (data) => {
+    const { name, email, password, userImg } = data;
+    const image = userImg[0];
+    const formData = new FormData();
+    formData.append("image", image);
+    const url = `https://api.imgbb.com/1/upload?&key=${process.env.REACT_APP_imgBB_apiKey}`;
+    fetch(url, {
+      method: "POST",
+      body: formData,
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          const img = data.data.url;
+          signUp(email, password)
+            .then((Result) => {
+              console.log(Result.user);
+              addUser(email, name, img);
+              updateUser(name, img);
+            })
+            .catch((e) => toast.error(e.message));
+        }
+      });
+  };
 
   return (
     <div className="hero py-1 ">
@@ -119,8 +117,11 @@ const SignUp = () => {
               <span className="label-text">Profile picture</span>
             </label>
             <input
-              type="file" className="file-input file-input-bordered w-full "
-              {...register("userImg", { required: "Enter your Profile picture" })}
+              type="file"
+              className="file-input file-input-bordered w-full "
+              {...register("userImg", {
+                required: "Enter your Profile picture",
+              })}
             />
             {errors?.userImg && (
               <p className="text-red-500">{errors?.userImg?.message}</p>
